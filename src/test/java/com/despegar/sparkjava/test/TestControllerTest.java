@@ -45,6 +45,17 @@ public class TestControllerTest {
 		assertEquals("This works!", new String(httpResponse.body()));
 		assertNotNull(testServer.getApplication());
 	}
-	
+
+	@Test
+	public void testDefaultFollowRedirect() throws Exception {
+		SparkServer<TestControllerTest.TestContollerTestSparkApplication> serverDoFollow = new SparkServer<>(TestControllerTest.TestContollerTestSparkApplication.class, 4567, true);
+		HttpResponse httpResponse = testServer.execute(serverDoFollow.get("/redirect"));
+		assertEquals(200, httpResponse.code());
+		assertEquals("This works!", new String(httpResponse.body()));
+
+		SparkServer<TestControllerTest.TestContollerTestSparkApplication> serverDontFollow = new SparkServer<>(TestControllerTest.TestContollerTestSparkApplication.class, 4567, false);
+		httpResponse = testServer.execute(serverDontFollow.get("/redirect"));
+		assertEquals(302, httpResponse.code());
+	}
 	
 }

@@ -35,7 +35,9 @@ public class SparkServer<T extends SparkApplication> extends ExternalResource {
     
     private String protocolHostPort;
     
-    private HttpClient httpClient;
+	private HttpClient httpClient;
+	
+	private boolean defaultFollowRedirect;
     
     /**
      * Constructor. It will use default Spark port ({@link Service#SPARK_DEFAULT_PORT}
@@ -51,10 +53,21 @@ public class SparkServer<T extends SparkApplication> extends ExternalResource {
      * @param port port where to run server
      */
     public SparkServer(Class<T> sparkApplicationClass, int port) {
+    	this(sparkApplicationClass, port, true);
+	}
+    
+    /**
+     * Constructor
+     * @param sparkApplicationClass {@link SparkApplication} to use
+     * @param port port where to run server
+	 * @param defaultFollowRedirect default value for followRedirect, used when not provided
+     */
+    public SparkServer(Class<T> sparkApplicationClass, int port, boolean defaultFollowRedirect) {
     	this.sparkApplicationClass = sparkApplicationClass;
     	this.port = port;
     	this.protocolHostPort = "http://localhost:" + port;
-    	this.httpClient = new HttpClient(1);
+		this.httpClient = new HttpClient(1);
+		this.defaultFollowRedirect = defaultFollowRedirect;
     }
 
     public T getApplication() {
@@ -76,31 +89,59 @@ public class SparkServer<T extends SparkApplication> extends ExternalResource {
     	this.sparkApplication.init();
     	Spark.awaitInitialization();
     }
-    
+	
+	public GetMethod get(String path) {
+		return get(path, defaultFollowRedirect);
+	}
+
     public GetMethod get(String path, boolean followRedirect) {
 		return new GetMethod(this.protocolHostPort + path, followRedirect);
 	}
-	
+
+	public PostMethod post(String path, String body) {
+		return post(path, body, defaultFollowRedirect);
+	}
+
 	public PostMethod post(String path, String body, boolean followRedirect) {
 		return new PostMethod(this.protocolHostPort + path, body, followRedirect);
 	}
-	
+
+	public PutMethod put(String path, String body) {
+		return put(path, body, defaultFollowRedirect);
+	}
+
 	public PutMethod put(String path, String body, boolean followRedirect) {
 		return new PutMethod(this.protocolHostPort + path, body, followRedirect);
 	}
 	
+	public PatchMethod patch(String path, String body) {
+		return patch(path, body, defaultFollowRedirect);
+	}
+
 	public PatchMethod patch(String path, String body, boolean followRedirect) {
 		return new PatchMethod(this.protocolHostPort + path, body, followRedirect);
 	}
 	
+	public DeleteMethod delete(String path) {
+		return delete(path, defaultFollowRedirect);
+	}
+
 	public DeleteMethod delete(String path, boolean followRedirect) {
 		return new DeleteMethod(this.protocolHostPort + path, followRedirect);
 	}
 	
+	public OptionsMethod options(String path) {
+		return options(path, defaultFollowRedirect);
+	}
+
 	public OptionsMethod options(String path, boolean followRedirect) {
 		return new OptionsMethod(this.protocolHostPort + path, followRedirect);
 	}
 	
+	public HeadMethod head(String path) {
+		return head(path, defaultFollowRedirect);
+	}
+
 	public HeadMethod head(String path, boolean followRedirect) {
 		return new HeadMethod(this.protocolHostPort + path, followRedirect);
 	}
